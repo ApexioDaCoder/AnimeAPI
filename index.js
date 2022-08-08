@@ -88,7 +88,7 @@ app.get([
 app.get('/animix/watch/:episodeId', async (req, res) => {
     const episodeId = req.params.episodeId;
 
-    const data = await fetchAnimixEpisodeSource({ episodeId });
+    const data = await fetchAnimixEpisodeSource({ episodeId, fetchM3U8: false });
     res.json(data).status(200)
 });
 
