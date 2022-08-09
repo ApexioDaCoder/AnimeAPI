@@ -352,7 +352,7 @@ export const fetchAnimixEpisodeInfo = async ({ animeId, list = {} }) => {
   }
 };
 
-export const fetchAnimixEpisodeSource = async ({ episodeId, fetchM3U8 }) => {
+export const fetchAnimixEpisodeSource = async ({ episodeId }) => {
   try {
     if (!episodeId)
       return {
@@ -376,12 +376,12 @@ export const fetchAnimixEpisodeSource = async ({ episodeId, fetchM3U8 }) => {
       "https://animixplay.to/api/live" +
       encodeString(`${content_id}LTXs3GrU8we9O${encodeString(content_id)}`);
 
-    let src = liveApiLink;
-    if (fetchM3U8) src = await decodeStreamingLinkAnimix(liveApiLink);
+    const src = await decodeStreamingLinkAnimix(liveApiLink);
 
     return {
       animeId,
       episodeNum,
+      watch: liveApiLink,
       src,
     };
   } catch (err) {
