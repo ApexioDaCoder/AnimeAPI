@@ -9,8 +9,10 @@ import {
   fetchSearchAnimix,
   fetchRecentEpisodes,
   fetchPopular,
+  fetchSeasonalDub,
   fetchGogoAnimeInfo,
   fetchAnimixAllAnime,
+  fetchAnimixFeaturedAnime,
   fetchAnimixAnimeInfo,
   fetchAnimixEpisodeInfo,
   fetchAnimixEpisodeSource,
@@ -38,6 +40,11 @@ app.get("/animix/all", async (req, res) => {
   res.json(data).status(200);
 });
 
+app.get("/animix/featured", async (req, res) => {
+  const data = await fetchAnimixFeaturedAnime();
+  res.json(data).status(200);
+});
+
 app.get("/animix/search", async (req, res) => {
   const keyw = req.query.keyw;
 
@@ -57,6 +64,11 @@ app.get("/popular", async (req, res) => {
   const type = req.query.type;
 
   const data = await fetchPopular({ type });
+  res.json(data).status(200);
+});
+
+app.get("/seasonal-dub", async (req, res) => {
+  const data = await fetchSeasonalDub();
   res.json(data).status(200);
 });
 

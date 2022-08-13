@@ -5,6 +5,7 @@ const gogoBase = "https://gogoanime.lu/";
 const animixBase = "https://animixplay.to/";
 const animixSearchApi = "https://cachecow.eu/api/search";
 const animixAll = "https://animixplay.to/assets/s/all.json";
+const animixFeatured = "https://animixplay.to/assets/s/featured.json";
 const gogoBase2 = "https://gogoanime.gg/";
 const gogoajax = "https://ajax.gogo-load.com/";
 const episodeListPage = "https://ajax.gogo-load.com/ajax/load-list-episode";
@@ -77,6 +78,7 @@ export const fetchSearchAnimix = async ({ list = [], keyw }) => {
         animeTitle: $(element).attr("title"),
         animeId: $(element).attr("href").split("/v1/")[1],
         animeImg: $(element).find("div.searchimg > img").attr("src"),
+        animeInfoText: $(element).find("p.infotext").html().split('<br>'),
       });
     });
 
@@ -94,6 +96,19 @@ export const fetchAnimixAllAnime = async () => {
   try {
     const fetchAnimixAll = await axios.get(animixAll, headerOption);
     return fetchAnimixAll.data;
+  } catch (err) {
+    console.log(err);
+    return {
+      error: true,
+      error_message: err,
+    };
+  }
+};
+
+export const fetchAnimixFeaturedAnime = async () => {
+  try {
+    const fetchAnimixFeatured = await axios.get(animixFeatured, headerOption);
+    return fetchAnimixFeatured.data;
   } catch (err) {
     console.log(err);
     return {
@@ -129,6 +144,39 @@ export const fetchRecentEpisodes = async ({
           .replace("type ic-", ""),
         animeImg: $(el).find("div > a > img").attr("src"),
         episodeUrl: gogoBase + "/" + $(el).find("p.name > a").attr("href"),
+      });
+    });
+
+    return list;
+  } catch (err) {
+    console.log(err);
+    return {
+      error: true,
+      error_message: err,
+    };
+  }
+};
+
+export const fetchSeasonalDub = async ({ list = [] }) => {
+  try {
+    const res = await axios(animixBase + "api/search", {
+      method: "POST",
+      headers: {
+        "User-Agent": USER_AGENT,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      data: new URLSearchParams({
+        seasonaldub: "3020-05-06 00:00:00",
+      }),
+    });
+
+    res.data.result.map((anime) => {
+      list.push({
+        title: anime.title,
+        animeId: anime.url.split("/").reverse()[0],
+        animeImg: anime.picture,
+        format: anime.infotext,
+        score: anime.score / 100,
       });
     });
 
