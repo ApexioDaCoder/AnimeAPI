@@ -1,6 +1,7 @@
 import axios from "axios";
 import { load } from "cheerio";
 
+const MALBase = "https://api.myanimelist.net/v2";
 const gogoBase = "https://gogoanime.lu/";
 const animixBase = "https://animixplay.to/";
 const animixSearchApi = "https://cachecow.eu/api/search";
@@ -20,7 +21,55 @@ import {
   encodeString,
   decodeString,
   decodeStreamingLinkAnimix,
+  MAL_ID,
+  malFields,
+  malSearchFieldsDefault,
 } from "../helper/utils.js";
+
+export const fetchSearchMAL = async ({
+  list = [],
+  keyw,
+  page,
+  fields = malSearchFieldsDefault.join(),
+}) => {
+  try {
+    let limit = 5;
+    let offset = 0;
+    if (!keyw)
+      return {
+        error: "No keyword provided",
+      };
+    fields.split(",").forEach((f) => {
+      if (malFields.includes(f)) {
+        return { error: `Unknown field "${f}"` };
+      }
+    });
+    if (page) {
+      limit = 50;
+      offset = (page - 1) * 50;
+    }
+
+    const rawMALdata = await axios.get(
+      MALBase +
+        `/anime?q=${keyw}&limit=${limit}&offset=${offset}&fields=${fields}`,
+      { headers: { "X-MAL-CLIENT-ID": MAL_ID } }
+    );
+
+    let data = rawMALdata.data.data.map((a) => a.node);
+    data = data.map((a) => {
+      return { ...a, enTitle: a.alternative_titles.en };
+    });
+    list = list.concat(data);
+
+    return list;
+  } catch (err) {
+    console.log(err);
+    return {
+      error: true,
+      error_message: err,
+    };
+  }
+};
 
 // Importing Gogoanime functions
 import { decryptAjaxResponse, getAjaxParams } from "../helper/gogoanime.js";
@@ -78,7 +127,7 @@ export const fetchSearchAnimix = async ({ list = [], keyw }) => {
         animeTitle: $(element).attr("title"),
         animeId: $(element).attr("href").split("/v1/")[1],
         animeImg: $(element).find("div.searchimg > img").attr("src"),
-        animeInfoText: $(element).find("p.infotext").html().split('<br>'),
+        animeInfoText: $(element).find("p.infotext").html().split("<br>"),
       });
     });
 

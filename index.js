@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import express from "express";
 
 const app = express();
@@ -5,6 +6,7 @@ import cors from "cors";
 
 //Importing all functions & utils
 import {
+  fetchSearchMAL,
   fetchSearchGogo,
   fetchSearchAnimix,
   fetchRecentEpisodes,
@@ -26,6 +28,15 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("Welcome to AnimeAPI!");
 });
+
+app.get("/mal/search", async (req, res) => {
+  const keyw = req.query.keyw;
+  const page = req.query.page;
+
+  const data = await fetchSearchMAL({ keyw: keyw, page: page });
+  res.json(data).status(200);
+});
+
 
 app.get("/gogoanime/search", async (req, res) => {
   const keyw = req.query.keyw;
