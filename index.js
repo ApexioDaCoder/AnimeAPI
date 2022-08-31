@@ -14,6 +14,7 @@ import {
   fetchSeasonalDub,
   fetchGogoAnimeInfo,
   fetchAnimixAllAnime,
+  fetchMALInfo,
   fetchAnimixFeaturedAnime,
   fetchAnimixAnimeInfo,
   fetchAnimixEpisodeInfo,
@@ -94,6 +95,13 @@ app.get("/animix/info/:malId", async (req, res) => {
   const malId = req.params.malId;
 
   const data = await fetchAnimixAnimeInfo({ malId: malId });
+  res.json(data).status(200);
+});
+
+app.get("/mal/info/:malId", async (req, res) => {
+  const malId = req.params.malId;
+
+  const data = await fetchMALInfo({ malId: malId });
   res.json(data).status(200);
 });
 
