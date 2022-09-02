@@ -33,7 +33,7 @@ export const fetchSearchMAL = async ({
   fields = malSearchFieldsDefault.join(),
 }) => {
   try {
-    let limit = 5;
+    let limit = 7;
     let offset = 0;
     if (!keyw)
       return {
@@ -58,10 +58,16 @@ export const fetchSearchMAL = async ({
     const data = rawMALdata.data.data.map((a) => a.node);
     list = await Promise.all(
       data.map(async (data) => {
-        const fetchInfoLinks = await axios.get(
-          animixBase + `assets/rec/${data.id}.json`,
-          headerOption
-        );
+        let fetchInfoLinks = {data:{}}
+        try {
+          fetchInfoLinks = await axios.get(
+            animixBase + `assets/rec/${data.id}.json`,
+            headerOption
+          );
+        }
+        catch(e) {
+          
+        }
 
         return {
           animeTitle: {
@@ -121,13 +127,36 @@ export const fetchMALInfo = async ({
         headerOption
       );
 
-      const $ = load(fetchInfoEpisodes.data);
-      $(".episode_list > tbody > tr").each(function () {
-        const el = $(this);
+      const fetchInfoVideos = await axios.get(
+        `https://myanimelist.net/anime/${fetchInfo.data.id}/${mal_name}/video`,
+        headerOption
+      );
+
+      const $1 = load(fetchInfoEpisodes.data);
+      /*const $2 = load(fetchInfoVideos.data);
+
+      const optionalData = [];
+
+      $2(".episode-video section .video-list").each(function (i) {
+        const el = $2(this);
+        const img = el.children("img");
+        optionalData.unshift({
+          title: img.attr("data-title"),
+          image: img.attr("data-src"),
+        });
+      });*/
+
+      $1(".episode_list > tbody > tr").each(function (i) {
+        const el = $1(this);
         const names = el.children(".episode-title").eq(0);
+        //const optional = optionalData[i];
+        const optional = {};
         episodes.push({
-          enName: names.children("a").text(),
-          jpName: names.children("span").text(),
+          episodeTitle: {
+            default: optional?.title || names.children("a").text(),
+            english: names.children("a").text(),
+            japanese: names.children("span").text(),
+          },
           aired: el.children(".episode-aired").text(),
           score: parseFloat(
             el
@@ -136,9 +165,13 @@ export const fetchMALInfo = async ({
               .children(".value")
               .text()
           ),
+          episodeImg: optional?.image,
+          number: i + 1,
         });
       });
-    } catch (e) {}
+    } catch (e) {
+      console.log(e);
+    }
 
     const fetchInfoLinks = await axios.get(
       animixBase + `assets/rec/${malId}.json`,
@@ -150,6 +183,7 @@ export const fetchMALInfo = async ({
         default: fetchInfo.data.title,
         english: fetchInfo.data.alternative_titles.en,
         japanese: fetchInfo.data.alternative_titles.jp,
+        synonyms: fetchInfo.data.alternative_titles.synonyms,
       },
       rating: fetchInfo.data.rating,
       animeId: fetchInfoLinks.data["Gogoanime"]
@@ -161,11 +195,17 @@ export const fetchMALInfo = async ({
       episodes,
       status: fetchInfo.data.status,
       score: fetchInfo.data.mean,
+      rank: fetchInfo.data.rank,
+      popularity: fetchInfo.data.popularity,
+      broadcast: fetchInfo.data.broadcast,
       synopsis: fetchInfo.data.synopsis,
+      background: fetchInfo.data.background,
       genres: fetchInfo.data.genres.map((genr) => genr.name),
       studios: fetchInfo.data.studios.map((st) => st.name),
       start_date: fetchInfo.data.start_date,
       end_date: fetchInfo.data.end_date,
+      pictures: fetchInfo.data.pictures,
+      recommendations: fetchInfo.data.recommendations,
       "3rdPartyLinks": fetchInfoLinks.data,
     };
 
