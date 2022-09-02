@@ -182,7 +182,7 @@ export const fetchMALInfo = async ({
       animeTitle: {
         default: fetchInfo.data.title,
         english: fetchInfo.data.alternative_titles.en,
-        japanese: fetchInfo.data.alternative_titles.jp,
+        japanese: fetchInfo.data.alternative_titles.ja,
         synonyms: fetchInfo.data.alternative_titles.synonyms,
       },
       rating: fetchInfo.data.rating,
